@@ -3,289 +3,150 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Tap-to-Open Letter</title>
+<title>Tap Letter</title>
 <style>
   :root{
-    --bg:#f5efe8;
-    --env:#d95f6b;
-    --env-dark:#c04d5a;
-    --paper:#fffef7;
+    --bg:#f2e9e4;
+    --env:#d04967;
+    --env-dark:#b03653;
+    --paper:#fffdf7;
     --shadow: rgba(0,0,0,0.18);
-    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    font-family: "Inter", system-ui;
   }
 
   html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg), #fff);display:flex;align-items:center;justify-content:center;}
-  .stage{
-    width: 92vw;
-    max-width: 520px;
-    min-height: 60vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding: 24px;
-  }
+  .stage{width:100%;display:flex;align-items:center;justify-content:center;padding:24px;}
 
-  /* Envelope container */
   .envelope-wrap{
-    --w:360px;
+    --w:480px;
     width:var(--w);
-    max-width:100%;
-    perspective:1000px;
+    max-width:95%;
+    perspective:1200px;
     position:relative;
   }
 
-  /* Envelope body */
   .envelope{
     width:100%;
-    height:230px;
+    height:310px;
     background: linear-gradient(180deg,var(--env), var(--env-dark));
-    border-radius:10px;
+    border-radius:14px;
     position:relative;
-    box-shadow: 0 14px 30px var(--shadow);
+    box-shadow: 0 20px 40px var(--shadow);
     transform-origin: top center;
     transition: transform 600ms cubic-bezier(.2,.9,.25,1);
     cursor: pointer;
-    user-select: none;
+    user-select:none;
   }
 
-  /* Flap (triangle) */
   .flap{
     position:absolute;
-    top:-54px;
-    left:0;
-    right:0;
-    margin:0 auto;
-    width:0;
-    height:0;
+    top:-82px;
+    left:0;right:0;
+    margin:auto;
+    width:0;height:0;
     border-left: calc(var(--w)/2) solid transparent;
     border-right: calc(var(--w)/2) solid transparent;
-    border-bottom: 70px solid var(--env);
+    border-bottom: 110px solid var(--env);
     transform-origin: center bottom;
     transition: transform 600ms cubic-bezier(.2,.9,.25,1);
-    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.12));
+    filter: drop-shadow(0 8px 14px rgba(0,0,0,0.12));
   }
 
-  /* Seal */
   .seal{
     position:absolute;
-    top:36px;
-    left:50%;
-    transform:translateX(-50%);
-    width:64px;
-    height:64px;
+    top:55px;left:50%;transform:translateX(-50%);
+    width:86px;height:86px;
     border-radius:50%;
     background: radial-gradient(circle at 30% 30%, #ffd1d8, #e65163 60%);
-    box-shadow: 0 6px 14px rgba(0,0,0,0.12);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:white;
-    font-weight:700;
-    font-size:20px;
+    box-shadow:0 8px 16px rgba(0,0,0,0.12);
+    display:flex;align-items:center;justify-content:center;
+    color:white;font-weight:700;font-size:28px;
   }
 
-  /* Paper / letter */
   .letter{
     position:absolute;
-    width:92%;
-    left:50%;
-    transform:translateX(-50%);
-    top:28px;
-    height:200px;
+    width:94%;
+    left:50%; transform:translateX(-50%);
+    top:35px;
+    height:320px;
     background:var(--paper);
-    border-radius:6px;
-    box-shadow:0 14px 30px rgba(0,0,0,0.12);
-    padding:20px 22px;
+    border-radius:10px;
+    box-shadow:0 18px 38px rgba(0,0,0,0.12);
+    padding:40px 35px;
     box-sizing:border-box;
-    transition: transform 700ms cubic-bezier(.2,.9,.25,1), opacity 200ms;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    transition: transform 720ms cubic-bezier(.2,.9,.25,1), opacity 260ms;
     transform-origin: top center;
-    z-index:0;
-    /* start hidden slightly inside the envelope */
-    transform: translate(-50%, 18px) scale(.985);
+    transform: translate(-50%, 25px) scale(.985);
     opacity:0;
+    z-index:0;
   }
 
   .letter .content{
+    max-width:90%;
     color:#333;
-    line-height:1.45;
-    font-size:1rem;
+    line-height:1.6;
+    font-size:1.25rem;
   }
 
-  /* When opened: flap folds back, envelope tilts, letter slides up */
-  .open .flap{
-    transform: rotateX(-180deg) translateY(6px);
-    transition: transform 600ms cubic-bezier(.12,.9,.25,1);
-    z-index: 0;
-  }
+  .open .flap{transform: rotateX(-180deg) translateY(8px);}  
+  .open .envelope{transform: translateY(22px) rotateX(8deg);}  
+  .open .letter{transform: translate(-50%, -260px) scale(1);opacity:1;z-index:20;}  
 
-  .open .envelope{
-    transform: translateY(18px) rotateX(8deg);
-  }
-
-  .open .letter{
-    transform: translate(-50%, -170px) scale(1);
-    opacity:1;
-    z-index: 20;
-  }
-
-  /* Close button (appears when open) */
   .close-btn{
-    position: absolute;
-    right: 12px;
-    top: 10px;
-    background: transparent;
-    border: none;
-    font-size: 18px;
-    color: rgba(0,0,0,0.55);
-    padding: 8px;
-    border-radius: 8px;
-    cursor:pointer;
-    display:none;
-  }
-  .open .close-btn{ display:block; }
-
-  /* small instruction text */
-  .hint{
-    margin-top:18px;
-    text-align:center;
-    color:#666;
-    font-size:13px;
-    letter-spacing:0.2px;
-  }
-
-  /* Make it feel tappable */
-  .envelope:active{ transform: scale(.997); }
-  .envelope:focus{ outline: 3px solid rgba(210,27,96,0.12); outline-offset:6px; }
-
-  /* Responsive adjustments */
-  @media (max-width:420px){
-    .envelope{ height:200px; }
-    .letter{ height:180px; top:24px; }
-  }
-
-  /* small decorative confetti that appears once opened (subtle) */
-  .confetti{
-    pointer-events:none;
     position:absolute;
-    inset:0;
-    z-index:100;
-    overflow:visible;
-    opacity:0;
-    transition:opacity 300ms;
+    right:15px;top:12px;
+    background:transparent;border:none;
+    font-size:26px;color:#777;
+    padding:8px;cursor:pointer;display:none;
   }
-  .open .confetti{ opacity:1; }
-  .confetti span{
-    position:absolute;
-    width:8px;
-    height:14px;
-    border-radius:2px;
-    background: white;
-    transform: translateY(-10px) rotate(10deg);
-    filter: drop-shadow(0 6px 10px rgba(0,0,0,0.08));
-    animation: floatUp 900ms ease-out forwards;
-  }
-  @keyframes floatUp{
-    from{ transform: translateY(0) rotate(0) scale(.9); opacity:0; }
-    to{ transform: translateY(-90px) rotate(360deg) scale(1); opacity:1; }
-  }
+  .open .close-btn{display:block;}
+
+  .hint{text-align:center;margin-top:20px;color:#666;font-size:15px;}
+
 </style>
 </head>
 <body>
   <main class="stage">
     <div class="envelope-wrap" id="envWrap">
-      <div class="envelope" id="envelope" role="button" tabindex="0" aria-expanded="false" aria-controls="letter" title="Tap to open">
-        <div class="flap" aria-hidden="true"></div>
-        <div class="seal" aria-hidden="true">❤</div>
 
-        <div class="letter" id="letter" aria-hidden="true">
-          <button class="close-btn" id="closeBtn" aria-label="Close letter">&times;</button>
+      <div class="envelope" id="envelope" role="button" tabindex="0">
+        <div class="flap"></div>
+        <div class="seal">❤</div>
+
+        <div class="letter" id="letter">
+          <button class="close-btn" id="closeBtn">&times;</button>
           <div class="content" id="letterContent">
-            <!-- Put your birthday message here -->
             <h2 style="margin-top:0;color:#d81b60;">Tugan kuninizben, Anashym!</h2>
             <p>Sizge qyzyqqa, baqytqa jane jaqsylyqqa toly omir tileimin! Aman-esen aramyzda otyra beruinizdi Allahym nasip etsin.</p>
-            <p style="margin-top:12px;font-size:0.95rem;color:#666;">(Tap the × or tap the envelope to fold back.)</p>
           </div>
         </div>
       </div>
 
-      <!-- confetti pieces positioned around the letter (will animate when .open) -->
-      <div class="confetti" aria-hidden="true">
-        <span style="left:10%; top:70%; background:#ffd166; animation-delay:100ms;"></span>
-        <span style="left:25%; top:60%; background:#06d6a0; animation-delay:140ms;"></span>
-        <span style="left:40%; top:72%; background:#ef476f; animation-delay:40ms;"></span>
-        <span style="left:60%; top:68%; background:#118ab2; animation-delay:220ms;"></span>
-        <span style="left:80%; top:62%; background:#ffd166; animation-delay:80ms;"></span>
-      </div>
-
-      <p class="hint">Tap the envelope to open the letter</p>
+      <p class="hint">Tap the envelope to open</p>
     </div>
   </main>
 
 <script>
-  (function(){
-    const envelopeWrap = document.getElementById('envWrap');
-    const envelope = document.getElementById('envelope');
-    const letter = document.getElementById('letter');
-    const closeBtn = document.getElementById('closeBtn');
+(function(){
+  const envWrap = document.getElementById('envWrap');
+  const envelope = document.getElementById('envelope');
+  const letter = document.getElementById('letter');
+  const closeBtn = document.getElementById('closeBtn');
+  let isOpen = false;
 
-    let isOpen = false;
+  function setOpen(open){
+    isOpen = !!open;
+    if(isOpen){envWrap.classList.add('open');}
+    else{envWrap.classList.remove('open');}
+  }
 
-    function setOpenState(open, userInitiated = true){
-      isOpen = !!open;
-      if(isOpen){
-        envelopeWrap.classList.add('open');
-        envelope.setAttribute('aria-expanded','true');
-        letter.setAttribute('aria-hidden','false');
-      } else {
-        envelopeWrap.classList.remove('open');
-        envelope.setAttribute('aria-expanded','false');
-        letter.setAttribute('aria-hidden','true');
-      }
-      // small vibration on supported devices when opened
-      try{ if(navigator.vibrate && userInitiated){ navigator.vibrate(20); } }catch(e){}
-    }
-
-    // Toggle on click / tap
-    envelope.addEventListener('click', function(e){
-      // If the click target was the close button inside letter, let that handler run
-      if(e.target === closeBtn) return;
-      setOpenState(!isOpen);
-    });
-
-    // Also respond to touchstart for snappier mobile feel
-    envelope.addEventListener('touchstart', function(e){
-      // prevent double events: let click handle toggle too; we only ensure responsiveness
-    }, {passive:true});
-
-    // Keyboard accessibility: Enter or Space toggles
-    envelope.addEventListener('keydown', function(e){
-      if(e.key === 'Enter' || e.key === ' '){
-        e.preventDefault();
-        setOpenState(!isOpen);
-      }
-    });
-
-    // Close button inside letter
-    closeBtn.addEventListener('click', function(e){
-      setOpenState(false);
-      // move focus back to envelope
-      envelope.focus();
-    });
-
-    // If user taps outside the envelope when open, close (optional nice UX)
-    document.addEventListener('click', function(e){
-      if(!isOpen) return;
-      if(!envelope.contains(e.target)){
-        setOpenState(false);
-      }
-    });
-
-    // Prevent text selection on double-tap on mobile
-    envelope.addEventListener('selectstart', function(e){ e.preventDefault(); });
-
-    // If you want to change text programmatically, you can reference #letterContent
-    // Example: document.getElementById('letterContent').innerHTML = '<h2>Hi</h2><p>...</p>';
-  })();
+  envelope.addEventListener('click', e => {if(e.target!==closeBtn) setOpen(!isOpen);});
+  closeBtn.addEventListener('click', () => setOpen(false));
+})();
 </script>
 </body>
 </html>
